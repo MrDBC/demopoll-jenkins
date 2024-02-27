@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="CliniOps" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <title>CliniOps</title>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css">
+    <script
+    crossorigin="anonymous"
+    src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"
+  ></script>
+  <script
+    src="https://unpkg.com/@azure/storage-blob@10.3.0/browser/azure-storage.blob.min.js"
+    integrity="sha384-fsfhtLyVQo3L3Bh73qgQoRR328xEeXnRGdoi53kjo1uectCfAHFfavrBBN2Nkbdf"
+    crossorigin="anonymous"
+  ></script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/javascript">
+    var dpwdrsid = 'NFBHg2bMwd';
+    var dpwdrsextid = '63053641';
+    var __ibaseUrl = (("https:" == document.location.protocol) ? "https://data.processwebsitedata.com" : "http://data.processwebsitedata.com");
+    (function () {
+      var va = document.createElement('script'); va.type = 'text/javascript'; va.async = true;
+      va.src = __ibaseUrl + '/cscripts/' + dpwdrsid + '-' + dpwdrsextid + '.js';
+      var sv = document.getElementsByTagName('script')[0]; sv.parentNode.insertBefore(va, sv);
+    })();
+
+    document.addEventListener("DOMContentLoaded", function () {
+    // Define a function to initialize the WebChat
+    async function initializeWebChat(){
+        // This is for obtaining Direct Line token from the bot.
+
+        // const { token } = await fetchJSON("/api/directline/token");
+
+        const tokenUrl = `https://directline.botframework.com/v3/directline/tokens/generate`;
+        const directLineBearerToken =
+          "PXSDLXbKeyo.I1l5bTBbyzt-spHacU4qQv8glhT9Q7dliCBRTNJxwG4"; // Replace with your actual bearer token
+
+        // Send a POST request to the Direct Line token generation endpoint with the provided bearer token
+        const response = await fetch(tokenUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${directLineBearerToken}`, // Add the provided bearer token
+            "Content-Type": "application/json",
+          },
+        });
+
+        const { token } = await response.json();
+        console.log(token);
+
+        // Triggers bot with initial message, in order to have greeting message render on load.
+        const store = WebChat.createStore(
+          {},
+          ({ dispatch }) =>
+            (next) =>
+            (action) => {
+              const { type } = action;
+              if (action.type === "DIRECT_LINE/CONNECT_FULFILLED") {
+                dispatch({
+                  type: "WEB_CHAT/SEND_EVENT",
+                  payload: {
+                    name: "startConversation",
+                    type: "event",
+                    value: { text: "hello" },
+                  },
+                });
+              }
+              return next(action);
+            }
+        );
+
+        console.log("webchat1 = ", document.getElementById('webchat1'));
+        // Makes connection to V2 Engine through direct line, with the defined actions and parameters
+        WebChat.renderWebChat(
+          {
+            directLine: WebChat.createDirectLine({ token }),
+            store,
+
+            styleOptions: {
+              backgroundColor: "rgba(255, 255, 255)",
+              sendBoxButtonColor: "rgba(3, 169, 244, 1)",
+              sendBoxBorderBottom: "2px solid rgba(64, 198, 240, 1)",
+              sendBoxBorderLeft: "2px solid rgba(64, 198, 240, 1)",
+              sendBoxBorderRight: "2px solid rgba(64, 198, 240, 1)",
+              sendBoxBorderTop: "2px solid rgba(64, 198, 240, 1)",
+              sendBoxBorderRadius: "10px",
+              sendBoxPlaceholderColor: "rgba(0,0,0)",
+              sendBoxHeight: 60,
+              sendBoxMaxHeight: 200,
+              sendBoxTextColor: "Black",
+              hideUploadButton: true,
+              // botAvatarInitials: "BT",
+              // accent: "#00809d",
+              // botAvatarBackgroundColor: "#FFFFFF",
+              // botAvatarImage: "../images/cliniops-bot.svg",
+              bubbleBackground: "rgba(3, 169, 244, 0.1)",
+              // userAvatarInitials: 'Guest',
+              backgroundColor: "rgba(249, 247, 247, 1)",
+              // Bubble
+              // TODO: Should we make a bubbleFromBot*
+              bubbleBorderColor: "#E6E6E6",
+              bubbleBorderRadius: 2,
+              bubbleBorderStyle: "solid",
+              bubbleBorderWidth: 0,
+              bubbleFromUserBorderColor: undefined,
+              bubbleFromUserBorderRadius: 2,
+              bubbleFromUserBorderStyle: undefined,
+              bubbleFromUserBorderWidth: 0,
+              bubbleFromUserNubOffset: 0,
+              bubbleFromUserNubSize: undefined,
+              bubbleFromUserTextColor: "Black",
+              bubbleImageHeight: 240,
+              bubbleMaxWidth: 480, // Based off screen width = 600px
+              bubbleMinHeight: 40,
+              bubbleMinWidth: 250, // min screen width = 300px; Microsoft Edge requires 372px (https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/13621468/)
+              bubbleNubOffset: 0,
+              // bubbleNubSize: undefined,
+              bubbleTextColor: "Black",
+            },
+          },
+          document.getElementById("webchat")
+        );
+      };
+
+    
+        // Listen for the click event on the ClinioOpsBot icon or button
+      const clinioOpsBotButton = document.getElementById("open-cliniops-bot"); // Replace with the actual ID
+      clinioOpsBotButton.addEventListener("click", initializeWebChat);
+      
+    });
+    
+
+  </script>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  
+  <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+  <script>
+    window.cookieconsent.initialise({
+      "palette": {
+        "popup": {
+          "background": "#3c404d",
+          "text": "#d6d6d6"
+        },
+        "button": {
+          "background": "#8bed4f"
+        }
+      },
+      "showLink": false,
+      "content": {
+        "message": `This site uses cookies to ensure you get the best browsing experience. If you choose to continue using the site, it will be interpreted as consent. We encourage you to become familiar with our <a href="/privacyPolicy" target="_blank">Privacy Policy</a> | <a href="/cookiePolicy" target="_blank">Cookie Policy</a>.`
+      }
+    });
+  </script>
+</body>
+
+</html>
